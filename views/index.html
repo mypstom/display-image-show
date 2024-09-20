@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Slider</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
+        .slider {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .slider img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+        .slider img.active {
+            opacity: 1;
+        }
+
+        .full{
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            color: white;
+            opacity: 0.65;
+            background-color: #00000000;
+            border: none;
+            cursor: pointer;
+            transition: all 0.6s;
+        }
+        .full:hover{
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="slider" id="slider"></div>
+<button class="full" onclick="openFullscreen()">[FULL]</button>
+
+<script>
+    let images = [];
+    let currentIndex = 0;
+
+    // 获取图片并开始轮播
+    fetch('/images')
+        .then(response => response.json())
+        .then(data => {
+            images = data;
+            if (images.length > 0) {
+                startSlideshow();
+            }
+        });
+
+    function startSlideshow() {
+        const slider = document.getElementById('slider');
+        
+        // 创建 img 元素
+        images.forEach((imgSrc, index) => {
+            const img = document.createElement('img');
+            img.src = `/images/${imgSrc}`;
+            if(index === 0){
+                img.classList.add('active');
+            }
+            slider.appendChild(img);
+        });
+
+        setInterval(() => {
+            showNextImage();
+            console.log('show next image');
+        }, 8000);
+        
+    }
+
+    function showNextImage() {
+        const slider = document.getElementById('slider');
+        const imgs = slider.querySelectorAll('img');
+        
+        imgs[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex + 1) % imgs.length;
+        imgs[currentIndex].classList.add('active');
+    }
+
+    function openFullscreen() {
+        let elem = document.documentElement; // 全屏显示整个页面
+
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) { // Firefox
+            elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { // Chrome, Safari and Opera
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { // IE/Edge
+            elem.msRequestFullscreen();
+        }
+    }
+</script>
+
+</body>
+</html>
